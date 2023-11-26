@@ -1,4 +1,4 @@
-package http.stuey;
+package http.study;
 
 import java.io.IOException;
 import java.io.InputStream;
