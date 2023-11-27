@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpTest {
-    private static String path = "/Users/ChoiSeoYeon/Downloads/sbadmin";
+    private static String path = "D:\\sbadmin";
     private static int port = 18085;
 
     public static void main(String[] args) {
