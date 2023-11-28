@@ -6,12 +6,12 @@ import java.net.Socket;
 
 public class HttpTest {
     private static String path = "D:\\sbadmin";
-    private static int port = 18085;
+    private static int port = 8080;
 
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("HTTP Server Strart ( PORT: "+ port +" )");
+            System.out.println("HTTP Server Strart ( PORT: " + port + " )");
 
             while (true) {
                 Socket socket = serverSocket.accept();

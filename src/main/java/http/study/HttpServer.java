@@ -60,13 +60,15 @@ public class HttpServer {
             	if (queryStr != null) {
                      htmlFile = replaceStr(queryStr, htmlFile);
                  }
-			} else if ("POST".equals(method)) {
+			} 
+            else if ("POST".equals(method)) {
 				String read = br.readLine();
 				String length = null;
 				while ((read = br.readLine()) != null && !read.equals("")) {
 					if (read.contains("Content-Length")) {
 						length = read;
 					}
+					// 여기서부터 작성하면 됨 
 				}
 			}
             out.write(htmlFile.getBytes());
