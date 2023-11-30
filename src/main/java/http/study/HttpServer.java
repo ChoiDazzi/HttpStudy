@@ -1,6 +1,8 @@
 package http.study;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,35 +52,58 @@ public class HttpServer {
     }
 
     private void success(BufferedReader br, File file, OutputStream out, String queryStr, String method) {
-       System.out.println("success");
         try {
             FileInputStream fis = new FileInputStream(file);
             String htmlFile = new String(fis.readAllBytes());
-            out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
-            
+            out.write("HTTP/1.1 200 OK\r\n".getBytes());
+
             if ("GET".equals(method)) {
-            	if (queryStr != null) {
-                     htmlFile = replaceStr(queryStr, htmlFile);
-                 }
-			} 
-            else if ("POST".equals(method)) {
-				String read = br.readLine();
-				String length = null;
-				while ((read = br.readLine()) != null && !read.equals("")) {
-					if (read.contains("Content-Length")) {
-						length = read;
-					}
-					// 여기서부터 작성하면 됨 
-				}
-			}
-            out.write(htmlFile.getBytes());
+                if (queryStr != null) {
+                    htmlFile = replaceStr(queryStr, htmlFile);
+                }
+                out.write("\r\n".getBytes());
+                out.write(htmlFile.getBytes());
+            } else if ("POST".equals(method)) {
+                out.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
+                out.write("\r\n".getBytes()); // POST 요청의 본문과 헤더를 구분하기 위한 빈 줄
+
+                int contentLength = 0;
+                while (true) {
+                    String line = br.readLine();
+                    if (line == null || line.isEmpty()) {
+                        break;
+                    }
+                    if (line.startsWith("Content-Length: ")) {
+                        contentLength = Integer.parseInt(line.substring("Content-Length: ".length()));
+                    }
+                }
+
+                char[] buffer = new char[contentLength];
+                int bytesRead = br.read(buffer);
+
+                String requestBody = urlDecode(new String(buffer, 0, bytesRead));
+                out.write(requestBody.getBytes(StandardCharsets.UTF_8));
+                out.write("\r\n".getBytes());
+                out.write(htmlFile.getBytes());
+            }
+
             out.flush();
-            
+
             fis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private String urlDecode(String encodedValue) {
+        try {
+            return URLDecoder.decode(encodedValue, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error decoding value", e);
+        }
+    }
+
+
     
     private String replaceStr(String queryStr, String htmlStr) { //id=1&pw=2
        Map<String, String> queryMap = new HashMap<>();
