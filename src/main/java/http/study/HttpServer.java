@@ -5,8 +5,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class HttpServer {
+	private Map<String, String> sessionMap = new HashMap<>();
     public void executeHttpServer(InputStream in, OutputStream out, String path) {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
@@ -64,46 +66,44 @@ public class HttpServer {
                 out.write("\r\n".getBytes());
                 out.write(htmlFile.getBytes());
             } else if ("POST".equals(method)) {
+            	//session 처리 
+            	String session = UUID.randomUUID().toString();
+            	sessionMap.put(session, "세션저장성공!");
+            	
                 out.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
+                out.write(("Set-Cookie: sessionId=" + session + ";Path=/\r\n").getBytes());
                 out.write("\r\n".getBytes()); // POST 요청의 본문과 헤더를 구분하기 위한 빈 줄
 
-                int contentLength = 0;
-                while (true) {
-                    String line = br.readLine();
-                    if (line == null || line.isEmpty()) {
-                        break;
-                    }
-                    if (line.startsWith("Content-Length: ")) {
-                        contentLength = Integer.parseInt(line.substring("Content-Length: ".length()));
-                    }
-                }
-
-                char[] buffer = new char[contentLength];
-                int bytesRead = br.read(buffer);
-
-                String requestBody = urlDecode(new String(buffer, 0, bytesRead));
-                out.write(requestBody.getBytes(StandardCharsets.UTF_8));
-                out.write("\r\n".getBytes());
+                String requestParam = getParamHeader(br);
+                out.write(requestParam.getBytes(StandardCharsets.UTF_8));
                 out.write(htmlFile.getBytes());
             }
 
             out.flush();
-
+            	
             fis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    private String urlDecode(String encodedValue) {
-        try {
-            return URLDecoder.decode(encodedValue, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Error decoding value", e);
+    
+    private String getParamHeader(BufferedReader br) throws IOException {
+    	int contentLength = 0;
+        while (true) {
+            String line = br.readLine();
+            if (line == null || line.isEmpty()) {
+                break;
+            }
+            if (line.startsWith("Content-Length: ")) {
+                contentLength = Integer.parseInt(line.substring("Content-Length: ".length()));
+            }
         }
+
+        char[] buffer = new char[contentLength];
+        int bytesRead = br.read(buffer);
+        String requestParam = URLDecoder.decode(new String(buffer, 0, bytesRead), StandardCharsets.UTF_8.toString());
+    	return requestParam;
     }
-
-
     
     private String replaceStr(String queryStr, String htmlStr) { //id=1&pw=2
        Map<String, String> queryMap = new HashMap<>();
