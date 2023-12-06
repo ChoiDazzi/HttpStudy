@@ -66,14 +66,14 @@ public class HttpServer {
                 out.write("\r\n".getBytes());
                 out.write(htmlFile.getBytes());
             } else if ("POST".equals(method)) {
-            	//session 처리 
+            	//session 처리 -> cookie 값읽어서 처리
             	String session = UUID.randomUUID().toString();
             	sessionMap.put(session, "세션저장성공!");
             	
                 out.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
                 out.write(("Set-Cookie: sessionId=" + session + ";Path=/\r\n").getBytes());
-                out.write("\r\n".getBytes()); // POST 요청의 본문과 헤더를 구분하기 위한 빈 줄
-
+                out.write("\r\n".getBytes()); 
+                	
                 String requestParam = getParamHeader(br);
                 out.write(requestParam.getBytes(StandardCharsets.UTF_8));
                 out.write(htmlFile.getBytes());
@@ -106,7 +106,6 @@ public class HttpServer {
     }
     
     private String replaceStr(String queryStr, String htmlStr) { //id=1&pw=2
-       Map<String, String> queryMap = new HashMap<>();
        String[] queryStrs = queryStr.split("&");
        for (String qStr : queryStrs) {
           String[] queryArr = qStr.split("=");

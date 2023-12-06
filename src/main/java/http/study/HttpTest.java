@@ -8,7 +8,7 @@ public class HttpTest {
     private static String path = "D:\\sbadmin";
     private static int port = 8080;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException { //final , finally -> 
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("HTTP Server Strart ( PORT: " + port + " )");
@@ -19,7 +19,8 @@ public class HttpTest {
                 th.start();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
+        	throw e;
         }
 
     }
