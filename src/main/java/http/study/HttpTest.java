@@ -8,20 +8,25 @@ public class HttpTest {
     private static String path = "D:\\sbadmin";
     private static int port = 8080;
 
-    public static void main(String[] args) throws IOException { //final , finally -> 
+    public static void main(String[] args) { 
+    	ServerSocket serverSocket = null;
+    	Socket socket = null;
+    	HttpThread ht = null;
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
             System.out.println("HTTP Server Strart ( PORT: " + port + " )");
-
+            
             while (true) {
-                Socket socket = serverSocket.accept();
-                HttpThread th = new HttpThread(socket, path);
-                th.start();
+                socket = serverSocket.accept();
+                ht = new HttpThread(socket, path);
+                ht.start();
             }
         } catch (IOException e) {
-//            throw new RuntimeException(e);
-        	throw e;
-        }
+        	e.printStackTrace();
+        } finally {
+			try { if(serverSocket != null) serverSocket.close(); } catch (IOException e) { }
+			try { if(socket != null) socket.close(); } catch (IOException e) { }
+		}
 
     }
 }

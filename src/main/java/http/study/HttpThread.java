@@ -17,14 +17,20 @@ public class HttpThread extends Thread {
     @Override
     public void run() {
         System.out.println("NEW THREAD");
-        try (
-                InputStream in = clientSocket.getInputStream();
-                OutputStream out = clientSocket.getOutputStream();
-        ) {
-            HttpServer hs = new HttpServer();
-            hs.executeHttpServer(in, out, path);
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+        	in = clientSocket.getInputStream();
+            out = clientSocket.getOutputStream();
+//            HttpServer hs = new HttpServer();
+//            hs.executeHttpServer(in, out, path);
+            Http dd = new Http();
+            dd.executeHttpServer(in, out, path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            e.printStackTrace();
+        } finally {
+			try {if (in != null) in.close();} catch (Exception e) { e.printStackTrace(); }
+			try {if (out != null) out.close();} catch (Exception e) { e.printStackTrace(); }
+		}
     }
 }

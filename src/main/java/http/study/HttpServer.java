@@ -11,10 +11,14 @@ public class HttpServer {
 	private Map<String, String> sessionMap = new HashMap<>();
     public void executeHttpServer(InputStream in, OutputStream out, String path) {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
+        	
         try {
             String brLine = br.readLine(); // GET /hello HTTP/1.0
             String[] httpInfo = brLine.split(" ");
+            
+            String requestHeaders = readRequestHeaders(br);
+            System.out.println("Request Headers:\n" + requestHeaders);
+            
             String method = httpInfo[0];
             String url = httpInfo[1];
             String queryStr = null;
@@ -42,6 +46,17 @@ public class HttpServer {
             e.printStackTrace();
         }
     }
+    
+    private String readRequestHeaders(BufferedReader br) throws IOException {
+        StringBuilder headers = new StringBuilder();
+        String line;
+
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            headers.append(line).append("\n");
+        }
+
+        return headers.toString();
+    }
 
     private void found(OutputStream out) {
         try {
@@ -66,7 +81,7 @@ public class HttpServer {
                 out.write("\r\n".getBytes());
                 out.write(htmlFile.getBytes());
             } else if ("POST".equals(method)) {
-            	//session 처리 -> cookie 값읽어서 처리
+            	//session 처리 -> cookie 값읽어서 처리(if) / get이든, post이든 상관없이 
             	String session = UUID.randomUUID().toString();
             	sessionMap.put(session, "세션저장성공!");
             	
